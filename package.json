@@ -1,22 +1,21 @@
 {
-  "name": "electron-quick-start",
-  "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "name": "ph6109-electron-communication-app",
+  "version": "0.1.0",
+  "description": "Electron application for communication with PH 6109 Meter via Modbus RTU",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "postinstall": "electron-builder install-app-deps" 
   },
-  "repository": "https://github.com/electron/electron-quick-start",
+  "repository": "https://github.com/VladReshet/PH6109App",
   "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
+    "ph6109",
+    "modbus",
+    "rtu",
+    "serial"
   ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
+  "author": "VladReshet",
+  "license": "WTFPL",
   "dependencies": {
     "bean": "^1.0.15",
     "modbus-serial": "^7.1.5"
@@ -27,13 +26,11 @@
     "electron-rebuild": "^1.7.3"
   },
   "build": {
-    "appId": "42",
+    "appId": "1",
     "win": {
       "target": [
-        "nsis",
-        "portable",
-        "7z",
-        "zip"]
+        "portable"
+      ]
     }
   }
 }
