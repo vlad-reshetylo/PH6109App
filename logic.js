@@ -30,7 +30,7 @@ const app = new Vue({
                 return
             }
 
-            Reader.read(this.address, 
+            Reader.read(parseInt(this.address), 
                         data => {
                             this.result = data.data.map(symbol => String.fromCharCode(symbol)).join('')
                         }, 

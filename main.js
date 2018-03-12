@@ -19,7 +19,8 @@ function createWindow () {
     resizable: false,
     fullscreen: false,
     frame: true,
-    movable: true
+    movable: true,
+    icon: path.join(__dirname, 'icon.ico')
   })
 
   mainWindow.setResizable(false);
