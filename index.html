@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Тестовый проект</title>
+  </head>
+  <body>
+    <div id="initbox">
+        <label>
+            <b>Устройство (порт)</b>
+        </label>
+        <br>
+        <input type="text" id="device" value="COM1">
+        <input type="button" value="Подключиться" id="initbtn">
+    </div>
+    <div id="initedbox" style="display: none;">
+        <br>
+        <label>
+            <b>Адрес</b>
+        </label>
+        <br>
+        <input type="number" min="1" max="50" id="id" value="1">
+        <input type="button" value="Отправить" id="send">
+        <br>
+        <h2>
+            Вывод: <span id="result"></span>
+        </h2>
+    </div>
+    <script>
+      require('./logic.js')
+    </script>
+  </body>
+</html>
