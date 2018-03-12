@@ -3,28 +3,52 @@
   <head>
     <meta charset="UTF-8">
     <title>Тестовый проект</title>
+    <link rel="stylesheet" href="styles/normalize.css">
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/bulma.css">
   </head>
   <body>
-    <div id="initbox">
-        <label>
-            <b>Устройство (порт)</b>
-        </label>
-        <br>
-        <input type="text" id="device" value="COM1">
-        <input type="button" value="Подключиться" id="initbtn">
-    </div>
-    <div id="initedbox" style="display: none;">
-        <br>
-        <label>
-            <b>Адрес</b>
-        </label>
-        <br>
-        <input type="number" min="1" max="50" id="id" value="1">
-        <input type="button" value="Отправить" id="send">
-        <br>
-        <h2>
-            Вывод: <span id="result"></span>
-        </h2>
+    <div id="app" class="section is-large">
+        <div class="columns">
+            <div class="column">
+                <div v-show="!isReady">
+                    <label>
+                        <b>Устройство (порт)</b>
+                    </label>
+                    <br>
+                    <br>
+                    <select class="select is-success" v-model="device">
+                        <option selected value="COM1">COM 1</option>
+                        <option value="COM2">COM 2</option>
+                        <option value="COM3">COM 3</option>
+                        <option value="COM4">COM 4</option>
+                        <option value="COM5">COM 5</option>
+                        <option value="COM6">COM 6</option>
+                        <option value="COM7">COM 7</option>
+                        <option value="COM8">COM 8</option>
+                        <option value="COM9">COM 9</option>
+                    </select>
+                    <input v-on:click="connect" type="button" value="Подключиться" class="button is-success">
+                </div>
+                <div v-show="isReady">
+                    <label>
+                        <b>Адрес</b>
+                    </label>
+                    <br>
+                    <br>
+                    <input v-model="address" type="text" class="input is-primary" min="1" max="50" value="1" style="width: 75px;">
+                    <div v-on:click="send" class="button is-primary">Получить данные</div>
+                </div>
+            </div>
+            <div class="column">
+                <label>
+                    <b>Вывод</b>
+                </label>
+                <br>
+                <br>
+                <input type="text" v-model="result" class="input is-success">
+            </div>
+        </div>
     </div>
     <script>
       require('./logic.js')
