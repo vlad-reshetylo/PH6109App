@@ -5,6 +5,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "build 32": "electron-builder build --win --ia32",
+    "build 64": "electron-builder build --win --x64",
     "postinstall": "electron-builder install-app-deps"
   },
   "repository": "https://github.com/VladReshet/PH6109App",
@@ -29,9 +31,7 @@
   "build": {
     "appId": "1",
     "win": {
-      "target": [
-        "portable"
-      ]
+      "target": "portable"
     }
   }
 }
