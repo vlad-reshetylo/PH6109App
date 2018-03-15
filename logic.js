@@ -1,5 +1,4 @@
-const ModbusClient = require("modbus-serial")
-const InitModbus   = require('./modbus/COMReader.js')
+const ModbusClient = require("./modbus/index.js")
 const Vue          = require('vue/dist/vue.min.js')
 const path         = require('path')
 const fs           = require('fs')
@@ -8,7 +7,7 @@ const os           = require('os')
 const logFile      = path.join(os.homedir(), 'db.json')
 const Reader       = {read : null}
 
-const onError = error => error && alert(`${error.errno}: ${error.message}`)
+const onError = error => error && console.log(`${error.errno}: ${error.message}`)
 const log     = data => fs.appendFile(logFile, JSON.stringify(data) + os.EOL, onError)
 
 const app = new Vue({
@@ -26,7 +25,7 @@ const app = new Vue({
         connect : function () {
             this.isReady = true
 
-            InitModbus(ModbusClient, this.device, read => {
+            ModbusClient.initModbus(ModbusClient, this.device, read => {
                 Reader.read = read
             })            
         },
@@ -44,9 +43,13 @@ const app = new Vue({
             const time    = new Date().getTime()
 
             const onResponse = data => {
+                alert('got response!');
+
                 this.result = data.data.map(symbol => String.fromCharCode(symbol)).join('')
 
                 const responseTime = new Date().getTime() - time
+
+                console.log(data)
 
                 log({
                     address : address,
