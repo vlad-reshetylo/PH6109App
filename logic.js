@@ -3,7 +3,7 @@ const Vue          = require('vue/dist/vue.min.js')
 const path         = require('path')
 const fs           = require('fs')
 const os           = require('os')
-const s           = require('serialport')
+const swal         = require('sweetalert')
 
 const logFile      = path.join(os.homedir(), 'db.json')
 const Reader       = {read : null}
@@ -20,19 +20,30 @@ const app = new Vue({
         address : 1,
         logPath : logFile,
         activePage : "settings",
-        phFault : 0,
-        orpFault : 0,
-        tempFault : 0,
         sidebarDisabled: false,
+        address : 1,
+        intervalId : false,
+        active : false,
         ph : {
-            intervalId : false,
-            active : false,
+            fault : 0,
             frequency : 5,
+            interval : 60,
             mode : "once",
             currentValue : 0,
+            lastValue : 0
+        },
+        temp : {
+            fault : 0,
+            currentValue : 0,
             lastValue : 0,
-            currentTemp : 0,
-            lastTemp : 0,
+        },
+        orp : {
+            fault: 0,
+            frequency : 5,
+            interval : 60,
+            mode : "once",
+            currentValue : 0,
+            lastValue : 0
         }
     },
 
@@ -44,7 +55,7 @@ const app = new Vue({
 
             ModbusClient.initModbus(ModbusClient, this.device, read => {
                 Reader.read = read
-            })            
+            })
         },
 
         openPage : function (page) {
@@ -59,40 +70,41 @@ const app = new Vue({
             this.activePage = page
         },
 
-        phRunFrequency : function () {
-            this.ph.active = this.sidebarDisabled = true;
-
-            this.ph.intervalId = setInterval(() => {
-                this.send();
-            }, 1000 * parseInt(this.ph.frequency));
-        },
-
-        phStopFrequency : function () {
-            this.ph.active = this.sidebarDisabled = false;
-
-            clearInterval(this.ph.intervalId);
-
-            this.ph.intervalId = false;
-        },
-
-        send : function () {
-            if (Reader.read === null) {
-                alert("Reader is not ready!")
-
+        runFrequency : function () {
+            if (this.orp.frequency < 1) {
+                swal('Ошибка!', 'Период должен быть целым числом.', 'error');
                 return
             }
 
-            const address = 1
-            const time    = new Date().getTime()
+            this.active = this.sidebarDisabled = true;
 
+            this.intervalId = setInterval(() => {
+                this.send();
+            }, 1000 * parseInt(this[this.activePage].frequency) * parseInt(this[this.activePage].interval));
+        },
+
+        stopFrequency : function () {
+            this.active = this.sidebarDisabled = false;
+
+            clearInterval(this.intervalId);
+
+            this.intervalId = false;
+        },
+
+        send : function () {
             const onResponse = data => {
                 const info = data.data.map(symbol => String.fromCharCode(symbol)).join('')
 
-                this.ph.lastValue = this.ph.currentValue
-                this.ph.currentValue = parseFloat(info.substr(0, 5)) + parseFloat(this.phFault)
+                if (this.activePage == 'ph') {
+                    this.ph.lastValue = this.ph.currentValue
+                    this.ph.currentValue = parseFloat(info.substr(0, 5)) + parseFloat(this.ph.fault)
 
-                this.ph.lastTemp = this.ph.currentTemp
-                this.ph.currentTemp = parseFloat(info.substr(5)) + parseFloat(this.tempFault)
+                    this.temp.lastValue = this.temp.currentValue
+                    this.temp.currentValue = parseFloat(info.substr(5)) + parseFloat(this.temp.fault)
+                } else if (this.activePage == 'orp') {
+                    this.orp.lastValue = this.orp.currentValue
+                    this.orp.currentValue = parseFloat(info.substr(0, 3) + '.' + info.substr(3, 1)) + parseFloat(this.orp.fault)
+                }
 
                 // this.result = data.data.map(symbol => String.fromCharCode(symbol)).join('')
 
@@ -101,7 +113,7 @@ const app = new Vue({
                 // console.log(data)
 
                 // log({
-                //     address : address,
+                //     address : this.address,
                 //     string : this.result,
                 //     responseData : data.data,
                 //     responseBuffer : data.buffer,
@@ -109,7 +121,7 @@ const app = new Vue({
                 // })
             }
 
-            Reader.read(address, onResponse, onError)
+            Reader.read(this.address, onResponse, onError)
         }
     }
 })

@@ -1,0 +1,111 @@
+ html{
+    overflow-y: hidden;
+}
+#sidebar{
+    background-color: #111;
+    color: #fff;
+    width: 140px;
+    height: 100%;
+    float: left;
+    border-right: 1px #eee solid;
+}
+
+#main-panel{
+    background-color: #333;
+    width: calc(100% - 140px);
+    height: 100%;
+    float: left;
+}
+
+#sidebar .sidebar-button{
+    text-align: center;
+    padding-top: 32px;
+    padding-bottom: 27px;
+    border-bottom: 1px #fff solid;
+    color: #eee;
+}
+
+#sidebar .sidebar-button:hover{
+    cursor: pointer;
+    background-color: #111000;
+}
+
+.titled-red{
+    color: #c0392b;
+}
+
+#hovered-red:hover{
+    color: #c0392b;
+    border-bottom: 1px #c0392b solid;
+}
+
+.titled-orange{
+    color: #f1c40f;
+}
+
+#hovered-orange:hover{
+    color: #f1c40f;
+    border-bottom: 1px #f1c40f solid;
+}
+
+.titled-green{
+    color: #27ae60;
+}
+
+#hovered-green:hover{
+    color: #27ae60;
+    border-bottom: 1px #27ae60 solid;
+}
+
+.titled-blue{
+    color: #3498db;
+}
+
+#hovered-blue:hover{
+    color: #3498db;
+    border-bottom: 1px #3498db solid;
+}
+
+#sidebar .sidebar-button .sidebar-button-title{
+    text-align: center;
+    font-family: sans-serif;
+}
+
+.page-title{
+    text-align: center;
+    font-size: 36px;
+    padding-top: 34px;
+}
+
+.page-body{
+    color: #fff;
+}
+
+.disabled-button:hover{
+    background-color: initial !important;
+}
+
+.disabled-button{
+    opacity: .1;
+    cursor: not-allowed !important;
+}
+
+.width-100-px{
+    width: 100px;
+}
+
+.align-right{
+    text-align: right;
+}
+
+.align-center{
+    text-align: center;
+}
+
+.current-value{
+    font-size: 90px;
+}
+
+.last-value{
+    font-size: 14px;
+}

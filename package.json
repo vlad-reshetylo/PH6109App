@@ -20,6 +20,7 @@
   "license": "WTFPL",
   "dependencies": {
     "modbus-serial": "^7.1.5",
+    "sweetalert": "^2.1.0",
     "vue": "^2.5.15"
   },
   "devDependencies": {
