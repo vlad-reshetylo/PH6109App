@@ -4,10 +4,11 @@ const path         = require('path')
 const fs           = require('fs')
 const os           = require('os')
 const swal         = require('sweetalert')
+const Config       = require('electron-config');
 
 const logFile      = path.join(os.homedir(), 'db.json')
-const configFile   = path.join(os.homedir(), 'PHMeterConfig.json')
 const Reader       = {read : null}
+const config       = new Config();
 
 const onError = error => error && console.log(`${error.errno}: ${error.message}`)
 const log     = data => fs.appendFile(logFile, JSON.stringify(data) + os.EOL, onError)
@@ -22,7 +23,6 @@ const app = new Vue({
         device : "COM1",
         address : 1,
         logPath : logFile,
-        configFile: configFile,
         activePage : "settings",
         sidebarDisabled: false,
         address : 1,
@@ -52,17 +52,10 @@ const app = new Vue({
     },
 
     created: function () {
-        fs.readFile(this.configFile,  (err, data) => {
-            if (err) return
-            if (data == undefined) return
-
-             const config = JSON.parse(data.toString())
-
-             this.device     = config.device
-             this.ph.fault   = config.phFault
-             this.temp.fault = config.tempFault
-             this.orp.fault  = config.orpFault
-        })
+        this.device     = config.get('device')    || this.device
+        this.ph.fault   = config.get('phFault')   || this.ph.fault
+        this.temp.fault = config.get('tempFault') || this.temp.fault
+        this.orp.fault  = config.get('orpFault')  || this.orp.fault
     },
 
     methods : {
@@ -144,13 +137,10 @@ const app = new Vue({
         },
 
         saveConfig : function () {
-            const config = {
-                device : this.device,
-                phFault : this.ph.fault,
-                tempFault : this.temp.fault,
-                orpFault : this.orp.fault
-            }
-            fs.writeFile(this.configFile, JSON.stringify(config), () => {})
+            config.set('device', this.device)
+            config.set('phFault', this.ph.fault)
+            config.set('tempFault', this.temp.fault)
+            config.set('orpFault', this.orp.fault)
         }
     }
 })

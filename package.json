@@ -19,6 +19,7 @@
   "author": "VladReshet",
   "license": "WTFPL",
   "dependencies": {
+    "electron-config": "^1.0.0",
     "modbus-serial": "^7.1.5",
     "sweetalert": "^2.1.0",
     "vue": "^2.5.15"
