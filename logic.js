@@ -22,7 +22,6 @@ const app = new Vue({
         address         : 1,
         device          : "COM1",
         logPath         : logFile,
-        configFile      : configFile,
         activePage      : "settings",
         isReady         : false,
         sidebarDisabled : false,
