@@ -66,7 +66,7 @@
                     <br>
                     <br>
                     <div class="select">
-                      <select class="select is-info" v-model="device" v-on:change="connect">
+                      <select class="select is-info" v-model="device" v-on:change="connect(); saveConfig();">
                         <option selected value="COM1">COM 1</option>
                         <option value="COM2">COM 2</option>
                         <option value="COM3">COM 3</option>
@@ -83,19 +83,19 @@
                     <label>Похибка PH</label>
                     <br>
                     <br>
-                    <input type="number" step="0.01" v-model="ph.fault" class="input is-success width-100-px">
+                    <input type="number" step="0.01" v-model="ph.fault" class="input is-success width-100-px" v-on:change="saveConfig">
                   </div>
                   <div class="column">
                     <label>Похибка ORP</label>
                     <br>
                     <br>
-                    <input type="number" step="0.01" v-model="orp.fault" class="input is-warning width-100-px">
+                    <input type="number" step="0.01" v-model="orp.fault" class="input is-warning width-100-px" v-on:change="saveConfig">
                   </div>
                   <div class="column">
                     <label>Похибка Температури</label>
                     <br>
                     <br>
-                    <input type="number" step="0.01" v-model="temp.fault" class="input is-info width-100-px">
+                    <input type="number" step="0.01" v-model="temp.fault" class="input is-info width-100-px" v-on:change="saveConfig">
                   </div>
                 </div>
               </div>
@@ -132,6 +132,10 @@
                           </select>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                  <div class="column" v-show="ph.mode == 'periodically'">
+                    <div class="columns">
                       <div class="column" v-if="!active">
                         <div class="button" v-on:click="runFrequency">Пуск</div>
                       </div>
@@ -149,14 +153,14 @@
                     <span class="titled-green">
                       <span class="current-value">{{ph.currentValue}} pH</span>
                       <br>
-                      <span class="last-value">Попереднє: {{ph.lastValue}} pH</span>
+                      <span class="last-value">Попереднє значення: {{ph.lastValue}} pH</span>
                     </span>
                   </div>
                   <div class="column align-center">
                     <span class="titled-blue">
                       <span class="current-value">{{temp.currentValue}} &#8451;</span>
                       <br>
-                      <span class="last-value">Попереднє: {{temp.lastValue}} &#8451;</span>
+                      <span class="last-value">Попереднє значення: {{temp.lastValue}} &#8451;</span>
                     </span>
                   </div>
                 </div>
@@ -194,6 +198,10 @@
                           </select>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                  <div class="column" v-show="orp.mode == 'periodically'">
+                    <div class="columns">
                       <div class="column" v-if="!active">
                         <div class="button" v-on:click="runFrequency">Пуск</div>
                       </div>
@@ -211,7 +219,7 @@
                     <span class="titled-orange">
                       <span class="current-value">{{orp.currentValue}} mV</span>
                       <br>
-                      <span class="last-value">Попереднє: {{orp.lastValue}} mV</span>
+                      <span class="last-value">Попереднє значення: {{orp.lastValue}} mV</span>
                     </span>
                   </div>
                 </div>

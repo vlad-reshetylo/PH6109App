@@ -6,12 +6,13 @@ const os           = require('os')
 const swal         = require('sweetalert')
 
 const logFile      = path.join(os.homedir(), 'db.json')
+const configFile   = path.join(os.homedir(), 'PHMeterConfig.json')
 const Reader       = {read : null}
 
 const onError = error => error && console.log(`${error.errno}: ${error.message}`)
 const log     = data => fs.appendFile(logFile, JSON.stringify(data) + os.EOL, onError)
 
-let modbusConnection = null;
+let modbusConnection = null
 
 const app = new Vue({
     el : "#app",
@@ -21,6 +22,7 @@ const app = new Vue({
         device : "COM1",
         address : 1,
         logPath : logFile,
+        configFile: configFile,
         activePage : "settings",
         sidebarDisabled: false,
         address : 1,
@@ -49,6 +51,20 @@ const app = new Vue({
         }
     },
 
+    created: function () {
+        fs.readFile(this.configFile,  (err, data) => {
+            if (err) return
+            if (data == undefined) return
+
+             const config = JSON.parse(data.toString())
+
+             this.device     = config.device
+             this.ph.fault   = config.phFault
+             this.temp.fault = config.tempFault
+             this.orp.fault  = config.orpFault
+        })
+    },
+
     methods : {
         connect : function () {
             console.log('reconnected')
@@ -60,7 +76,8 @@ const app = new Vue({
             })
 
             modbusConnection.setLengthErrorHandler(() => {
-                swal('Ошибка!', 'Вероятнее всего, датчик находится в неправильном режиме', 'error');
+                this.stopFrequency()
+                swal('Ошибка!', 'Вероятнее всего, датчик находится в неправильном режиме', 'error')
             })
         },
 
@@ -78,23 +95,23 @@ const app = new Vue({
 
         runFrequency : function () {
             if (this.orp.frequency < 1) {
-                swal('Ошибка!', 'Период должен быть целым числом.', 'error');
+                swal('Ошибка!', 'Период должен быть целым числом.', 'error')
                 return
             }
 
-            this.active = this.sidebarDisabled = true;
+            this.active = this.sidebarDisabled = true
 
             this.intervalId = setInterval(() => {
-                this.send();
-            }, 1000 * parseInt(this[this.activePage].frequency) * parseInt(this[this.activePage].interval));
+                this.send()
+            }, 1000 * parseInt(this[this.activePage].frequency) * parseInt(this[this.activePage].interval))
         },
 
         stopFrequency : function () {
-            this.active = this.sidebarDisabled = false;
+            this.active = this.sidebarDisabled = false
 
-            clearInterval(this.intervalId);
+            clearInterval(this.intervalId)
 
-            this.intervalId = false;
+            this.intervalId = false
         },
 
         send : function () {
@@ -116,14 +133,24 @@ const app = new Vue({
             }
 
             if (this.activePage == 'ph') {
-                modbusConnection.setDataLength(16);
+                modbusConnection.setDataLength(16)
             }
 
             if (this.activePage == 'orp') {
-                modbusConnection.setDataLength(12);
+                modbusConnection.setDataLength(12)
             }
 
             Reader.read(this.address, onResponse, onError)
+        },
+
+        saveConfig : function () {
+            const config = {
+                device : this.device,
+                phFault : this.ph.fault,
+                tempFault : this.temp.fault,
+                orpFault : this.orp.fault
+            }
+            fs.writeFile(this.configFile, JSON.stringify(config), () => {})
         }
     }
 })
