@@ -11,6 +11,8 @@ const Reader       = {read : null}
 const onError = error => error && console.log(`${error.errno}: ${error.message}`)
 const log     = data => fs.appendFile(logFile, JSON.stringify(data) + os.EOL, onError)
 
+let modbusConnection = null;
+
 const app = new Vue({
     el : "#app",
 
@@ -53,8 +55,12 @@ const app = new Vue({
 
             this.isReady = true
 
-            ModbusClient.initModbus(ModbusClient, this.device, read => {
+            modbusConnection = ModbusClient.initModbus(ModbusClient, this.device, read => {
                 Reader.read = read
+            })
+
+            modbusConnection.setLengthErrorHandler(() => {
+                swal('Ошибка!', 'Вероятнее всего, датчик находится в неправильном режиме', 'error');
             })
         },
 
@@ -101,24 +107,20 @@ const app = new Vue({
 
                     this.temp.lastValue = this.temp.currentValue
                     this.temp.currentValue = parseFloat(info.substr(5)) + parseFloat(this.temp.fault)
-                } else if (this.activePage == 'orp') {
+                }
+
+                if (this.activePage == 'orp') {
                     this.orp.lastValue = this.orp.currentValue
                     this.orp.currentValue = parseFloat(info.substr(0, 3) + '.' + info.substr(3, 1)) + parseFloat(this.orp.fault)
                 }
+            }
 
-                // this.result = data.data.map(symbol => String.fromCharCode(symbol)).join('')
+            if (this.activePage == 'ph') {
+                modbusConnection.setDataLength(16);
+            }
 
-                // const responseTime = new Date().getTime() - time
-
-                // console.log(data)
-
-                // log({
-                //     address : this.address,
-                //     string : this.result,
-                //     responseData : data.data,
-                //     responseBuffer : data.buffer,
-                //     time : `${responseTime}ms`
-                // })
+            if (this.activePage == 'orp') {
+                modbusConnection.setDataLength(12);
             }
 
             Reader.read(this.address, onResponse, onError)

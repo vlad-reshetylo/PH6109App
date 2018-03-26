@@ -84,6 +84,9 @@ var ModbusRTU = function(port) {
     this._transactions = {};
     this._timeout = null; // timeout in msec before unanswered request throws timeout error
     this._unitID = 1;
+    this.length = 16;
+    this.lengthErrorHandler = () => {};
+    this.buffer = null;
 };
 
 /**
@@ -92,6 +95,16 @@ var ModbusRTU = function(port) {
  * @param {Function} callback the function to call next on open success
  *      of failure.
  */
+ModbusRTU.prototype.setDataLength = function(length){
+    this.buffer = null;
+
+    this.dataLength = length;
+};
+
+ModbusRTU.prototype.setLengthErrorHandler = function(handler){
+    this.lengthErrorHandler = handler;
+}
+
 ModbusRTU.prototype.open = function(callback) {
     var modbus = this;
 
@@ -108,7 +121,7 @@ ModbusRTU.prototype.open = function(callback) {
             modbus._port._transactionIdRead = 1;
             modbus._port._transactionIdWrite = 1;
 
-            let buffer = null;
+            modbus.buffer = null;
 
             modbus._port.on("data", function(data) {
                 // set locale helpers variables
@@ -119,20 +132,46 @@ ModbusRTU.prototype.open = function(callback) {
                     return;
                 }
 
-                if(data.length < 16){
-                    if(buffer == null){
-                        buffer = data;
+                if(data.length > modbus.dataLength){
+                    modbus.lengthErrorHandler();
 
-                        console.log(`Got buffer: ${buffer.length} symbols. Not enough.`);
+                    modbus.buffer = null;
+
+                    return;
+                }
+
+                if(data.length < modbus.dataLength){
+                    if(modbus.buffer == null){
+                        modbus.buffer = data;
+
+                        console.log(`Got buffer: ${modbus.buffer.length} symbols. Not enough. Active mode: ${modbus.dataLength}`);
 
                         return;
                     }else{
-                        console.log(`Got buffer: ${data.length} symbols. Will be concated.`);
+                        console.log(`Got buffer: ${data.length} symbols. In buffer: ${modbus.buffer.length}. Will be concated.`);
 
-                        data = Buffer.from(buffer.toJSON().data.concat(data.toJSON().data));
+                        data = Buffer.from(modbus.buffer.toJSON().data.concat(data.toJSON().data));
 
-                        buffer = null;
+                        modbus.buffer = null;
                     }
+                }
+
+                let sixSymbol = data[5];
+
+                if(modbus.dataLength === 16 && sixSymbol !== 46){
+                    modbus.lengthErrorHandler();
+
+                    modbus.buffer = null;
+
+                    return;
+                }
+
+                if(modbus.dataLength === 12 && sixSymbol === 46){
+                    modbus.lengthErrorHandler();
+
+                    modbus.buffer = null;
+
+                    return;
                 }
 
                 /* cancel the timeout */
@@ -146,7 +185,7 @@ ModbusRTU.prototype.open = function(callback) {
                 }
 
                 transaction.next(null, {
-                    "data": data.toJSON().data.slice(3, 12), 
+                    "data": data.toJSON().data.slice(3, modbus.dataLength - 4), 
                     "buffer": data
                 });
             });
@@ -225,15 +264,17 @@ require("./apis/promise")(ModbusRTU);
 // exports
 module.exports = ModbusRTU;
 module.exports.initModbus = (ModbusClient, port, callback) => {
-    this.client = new ModbusClient();
+    const client = new ModbusClient();
 
-    this.client.connectRTU(port, {baudRate: 9600}, () => {
+    client.connectRTU(port, {baudRate: 9600}, () => {
         callback((id, resultCallback, errorCallback) => {
-            this.client.setID(id);
+            client.setID(id);
 
-            this.client.readHoldingRegisters(0, 6)
+            client.readHoldingRegisters(0, 6)
                         .then(resultCallback)
                         .catch(errorCallback);
         });
     });
+
+    return client;
 };
