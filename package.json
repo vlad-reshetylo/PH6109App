@@ -21,6 +21,7 @@
   "dependencies": {
     "electron-config": "^1.0.0",
     "modbus-serial": "^7.1.5",
+    "node-excel-export": "^1.4.3",
     "sweetalert": "^2.1.0",
     "vue": "^2.5.15"
   },
