@@ -18,57 +18,62 @@ const app = new Vue({
     el : "#app",
 
     data : {
-        isReady : false,
-        device : "COM1",
-        address : 1,
-        logPath : logFile,
-        configFile: configFile,
-        activePage : "settings",
-        sidebarDisabled: false,
-        address : 1,
-        intervalId : false,
-        active : false,
+        address         : 1,
+        device          : "COM1",
+        logPath         : logFile,
+        configFile      : configFile,
+        activePage      : "settings",
+        isReady         : false,
+        sidebarDisabled : false,
+        intervalId      : false,
+        active          : false,
         ph : {
-            fault : 0,
-            frequency : 5,
-            interval : 60,
-            mode : "once",
+            mode         : "once",
+            fault        : 0,
+            frequency    : 5,
+            interval     : 60,
             currentValue : 0,
-            lastValue : 0
+            lastValue    : 0
         },
         temp : {
-            fault : 0,
+            fault        : 0,
             currentValue : 0,
-            lastValue : 0,
+            lastValue    : 0,
         },
         orp : {
-            fault: 0,
-            frequency : 5,
-            interval : 60,
-            mode : "once",
+            mode         : "once",
+            fault        : 0,
+            frequency    : 5,
+            interval     : 60,
             currentValue : 0,
-            lastValue : 0
+            lastValue    : 0
         }
     },
 
     created: function () {
-        fs.readFile(this.configFile,  (err, data) => {
-            if (err) return
-            if (data == undefined) return
+        fs.readFile(this.configFile,  (error, data) => {
+            if (error || data == undefined) {
+                return
+            }
 
-             const config = JSON.parse(data.toString())
+            let config;
 
-             this.device     = config.device
-             this.ph.fault   = config.phFault
-             this.temp.fault = config.tempFault
-             this.orp.fault  = config.orpFault
+            try {
+                config = JSON.parse(data.toString())
+            } catch (e) {
+                // json in file was corrupted
+                return;
+            }
+
+            this.device     = config.device
+            this.ph.fault   = config.phFault
+            this.temp.fault = config.tempFault
+            this.orp.fault  = config.orpFault
         })
     },
 
     methods : {
         connect : function () {
-            console.log('reconnected')
-
             this.isReady = true
 
             modbusConnection = ModbusClient.initModbus(ModbusClient, this.device, read => {
@@ -77,7 +82,8 @@ const app = new Vue({
 
             modbusConnection.setLengthErrorHandler(() => {
                 this.stopFrequency()
-                swal('Ошибка!', 'Вероятнее всего, датчик находится в неправильном режиме', 'error')
+
+                swal('Помилка!', 'ймовірніше за все, датчик знаходиться в неправильному режимі', 'error')
             })
         },
 
@@ -95,15 +101,16 @@ const app = new Vue({
 
         runFrequency : function () {
             if (this.orp.frequency < 1) {
-                swal('Ошибка!', 'Период должен быть целым числом.', 'error')
+                swal('Помилка!', 'Період має бути цілим числом.', 'error')
+
                 return
             }
 
             this.active = this.sidebarDisabled = true
 
-            this.intervalId = setInterval(() => {
-                this.send()
-            }, 1000 * parseInt(this[this.activePage].frequency) * parseInt(this[this.activePage].interval))
+            const frequency = 1000 * parseInt(this[this.activePage].frequency) * parseInt(this[this.activePage].interval);
+
+            this.intervalId = setInterval(this.send.bind(this), frequency);
         },
 
         stopFrequency : function () {
@@ -118,25 +125,25 @@ const app = new Vue({
             const onResponse = data => {
                 const info = data.data.map(symbol => String.fromCharCode(symbol)).join('')
 
-                if (this.activePage == 'ph') {
-                    this.ph.lastValue = this.ph.currentValue
+                if (this.activePage === 'ph') {
+                    this.ph.lastValue    = this.ph.currentValue
                     this.ph.currentValue = parseFloat(info.substr(0, 5)) + parseFloat(this.ph.fault)
 
-                    this.temp.lastValue = this.temp.currentValue
+                    this.temp.lastValue    = this.temp.currentValue
                     this.temp.currentValue = parseFloat(info.substr(5)) + parseFloat(this.temp.fault)
                 }
 
-                if (this.activePage == 'orp') {
-                    this.orp.lastValue = this.orp.currentValue
+                if (this.activePage === 'orp') {
+                    this.orp.lastValue    = this.orp.currentValue
                     this.orp.currentValue = parseFloat(info.substr(0, 3) + '.' + info.substr(3, 1)) + parseFloat(this.orp.fault)
                 }
             }
 
-            if (this.activePage == 'ph') {
+            if (this.activePage === 'ph') {
                 modbusConnection.setDataLength(16)
             }
 
-            if (this.activePage == 'orp') {
+            if (this.activePage === 'orp') {
                 modbusConnection.setDataLength(12)
             }
 
@@ -145,11 +152,12 @@ const app = new Vue({
 
         saveConfig : function () {
             const config = {
-                device : this.device,
-                phFault : this.ph.fault,
+                device    : this.device,
+                phFault   : this.ph.fault,
                 tempFault : this.temp.fault,
-                orpFault : this.orp.fault
+                orpFault  : this.orp.fault
             }
+
             fs.writeFile(this.configFile, JSON.stringify(config), () => {})
         }
     }

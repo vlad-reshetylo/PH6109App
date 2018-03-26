@@ -2,7 +2,7 @@
     overflow-y: hidden;
 }
 #sidebar{
-    background-color: #111;
+    background-color: #191b1d;
     color: #fff;
     width: 140px;
     height: 100%;
@@ -11,7 +11,7 @@
 }
 
 #main-panel{
-    background-color: #333;
+    background: linear-gradient(to bottom, #111315, #42464a);
     width: calc(100% - 140px);
     height: 100%;
     float: left;
