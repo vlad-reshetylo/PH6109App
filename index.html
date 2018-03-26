@@ -8,49 +8,250 @@
     <link rel="stylesheet" href="styles/bulma.css">
   </head>
   <body>
-    <div id="app" class="section is-large">
-        <div class="columns">
-            <div class="column">
-                <div v-show="!isReady">
-                    <label>
-                        <b>Устройство (порт)</b>
-                    </label>
-                    <br>
-                    <br>
-                    <select class="select is-success" v-model="device">
-                        <option selected value="COM1">COM 1</option>
-                        <option value="COM2">COM 2</option>
-                        <option value="COM3">COM 3</option>
-                        <option value="COM4">COM 4</option>
-                        <option value="COM5">COM 5</option>
-                        <option value="COM6">COM 6</option>
-                        <option value="COM7">COM 7</option>
-                        <option value="COM8">COM 8</option>
-                        <option value="COM9">COM 9</option>
-                    </select>
-                    <input v-on:click="connect" type="button" value="Подключиться" class="button is-success">
-                </div>
-                <div v-show="isReady">
-                    <label>
-                        <b>Адрес</b>
-                    </label>
-                    <br>
-                    <br>
-                    <input v-model="address" type="number" class="input is-primary" min="1" max="50" value="1" style="width: 75px;">
-                    <div v-on:click="send" class="button is-primary">Получить данные</div>
+    <style>
+        html{
+            overflow-y: hidden;
+        }
+        #sidebar{
+            background-color: #111;
+            color: #fff;
+            width: 140px;
+            height: 100%;
+            float: left;
+            border-right: 1px #eee solid;
+        }
+        #main-panel{
+            background-color: #333;
+            width: calc(100% - 140px);
+            height: 100%;
+            float: left;
+        }
+        #sidebar .sidebar-button{
+            text-align: center;
+            padding-top: 32px;
+            padding-bottom: 27px;
+            border-bottom: 1px #fff solid;
+            color: #eee;
+        }
+        #sidebar .sidebar-button:hover{
+            cursor: pointer;
+            background-color: #111000;
+        }
+
+        .titled-red{
+            color: #c0392b;
+        }
+
+        #hovered-red:hover{
+            color: #c0392b;
+            border-bottom: 1px #c0392b solid;
+        }
+        .titled-orange{
+            color: #f1c40f;
+        }
+
+        #hovered-orange:hover{
+            color: #f1c40f;
+            border-bottom: 1px #f1c40f solid;
+        }
+        .titled-green{
+            color: #27ae60;
+        }
+
+        #hovered-green:hover{
+            color: #27ae60;
+            border-bottom: 1px #27ae60 solid;
+        }
+        .titled-blue{
+            color: #3498db;
+        }
+
+        #hovered-blue:hover{
+            color: #3498db;
+            border-bottom: 1px #3498db solid;
+        }
+
+        #sidebar .sidebar-button .sidebar-button-title{
+            text-align: center;
+            font-family: sans-serif;
+        }
+        .page-title{
+            text-align: center;
+            font-size: 36px;
+            padding-top: 34px;
+        }
+        .page-body{
+            color: #fff;
+        }
+        
+        .disabled-button:hover{
+            background-color: initial !important;
+        }
+
+        .disabled-button{
+            opacity: .1;
+            cursor: not-allowed !important;
+        }
+    </style>
+    <div id="app">
+        <div id="sidebar">
+            <div class="sidebar-button" 
+                id="hovered-blue" 
+                v-on:click="openPage('settings')"
+                v-bind:class="{'disabled-button' : sidebarDisabled && activePage !== 'settings'}"
+                >
+                <img src="resources/settings.png" alt="">
+                <div class="sidebar-button-title">
+                    Налаштування
                 </div>
             </div>
-            <div class="column">
-                <label>
-                    <b>Вывод</b>
-                </label>
-                <br>
-                <br>
-                <input type="text" v-model="result" class="input is-success">
+            <div class="sidebar-button" 
+                id="hovered-green" 
+                v-on:click="openPage('ph')"
+                v-bind:class="{'disabled-button' : sidebarDisabled && activePage !== 'ph'}"
+                >
+                <img src="resources/ph.png" alt="">
+                <div class="sidebar-button-title">
+                    Режим PH
+                </div>
+            </div>
+            <div class="sidebar-button" 
+                id="hovered-orange"
+                v-on:click="openPage('orp')"
+                v-bind:class="{'disabled-button' : sidebarDisabled && activePage !== 'orp'}"
+                >
+                <img src="resources/orp.png" alt="">
+                <div class="sidebar-button-title">
+                    Режим ORP
+                </div>
+            </div>
+            <div class="sidebar-button" 
+                id="hovered-red"
+                v-on:click="openPage('info')"
+                v-bind:class="{'disabled-button' : sidebarDisabled && activePage !== 'info'}"
+                >
+                <img src="resources/info.png" alt="">
+                <div class="sidebar-button-title">
+                    Інформація
+                </div>
             </div>
         </div>
-        <br>
-        Log path: {{logPath}}
+        <div id="main-panel">
+            <div class="page" v-show="activePage == 'settings'">
+                <div class="page-title titled-blue">
+                    Налаштування
+                </div>
+                <div class="page-body section is-large">
+                    <div class="columns">
+                        <div class="column">
+                            <label>
+                                Пристрій (порт)
+                            </label>
+                            <br>
+                            <br>
+                            <div class="select">
+                                <select class="select is-info" v-model="device" v-on:change="connect">
+                                    <option selected value="COM1">COM 1</option>
+                                    <option value="COM2">COM 2</option>
+                                    <option value="COM3">COM 3</option>
+                                    <option value="COM4">COM 4</option>
+                                    <option value="COM5">COM 5</option>
+                                    <option value="COM6">COM 6</option>
+                                    <option value="COM7">COM 7</option>
+                                    <option value="COM8">COM 8</option>
+                                    <option value="COM9">COM 9</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <label>Похибка PH</label>
+                            <br>
+                            <br>
+                            <input type="number" v-model="phFault" class="input is-success" style="width: 100px;">
+                        </div>
+                        <div class="column">
+                            <label>Похибка ORP</label>
+                            <br>
+                            <br>
+                            <input type="number" v-model="orpFault" class="input is-warning" style="width: 100px;">
+                        </div>
+                        <div class="column">
+                            <label>Похибка Температури</label>
+                            <br>
+                            <br>
+                            <input type="number" v-model="tempFault" class="input is-info" style="width: 100px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="page" v-show="activePage == 'ph'">
+                <div class="page-title titled-green">
+                    Режим PH
+                </div>
+                <div class="page-body section is-large">
+                    <div class="columns">
+                        <div class="column" style="text-align: right;">
+                            <div class="select">
+                                <select v-model="ph.mode" :disabled="ph.active">
+                                    <option value="once">Один раз</option>
+                                    <option value="periodically">Періодично</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column" v-show="ph.mode == 'once'">
+                            <div class="button" v-on:click="send">Зняти показник</div>
+                        </div>
+                        <div class="column" v-show="ph.mode == 'periodically'">
+                            <div class="columns">
+                                <div class="column">
+                                    <input type="number" v-model="ph.frequency" class="input is-success" placeholder="Частота (сек)">
+                                </div>
+                                <div class="column" v-if="!ph.active">
+                                    <div class="button" v-on:click="phRunFrequency">Пуск</div>
+                                </div>
+                                <div class="column" v-if="ph.active">
+                                    <div class="button is-danger" v-on:click="phStopFrequency">Стоп</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                    <br>
+                    <div class="columns">
+                        <div class="column" style="text-align: center;">
+                            <span class="titled-green">
+                                <span style="font-size: 90px;">{{ph.currentValue}} pH</span>
+                                <br>
+                                <span style="font-size: 14px;">Попереднє: {{ph.lastValue}} pH</span>
+                            </span>
+                        </div>
+                        <div class="column" style="text-align: center;">
+                            <span class="titled-blue">
+                                <span style="font-size: 90px;">{{ph.currentTemp}} &#8451;</span>
+                                <br>
+                                <span style="font-size: 14px;">Попереднє: {{ph.lastTemp}} &#8451;</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="page" v-show="activePage == 'orp'">
+                <div class="page-title titled-orange">
+                    Режим ORP
+                </div>
+                <div class="page-body section is-large">
+                    
+                </div>
+            </div>
+            <div class="page" v-show="activePage == 'info'">
+                <div class="page-title titled-red">
+                    Інформація
+                </div>
+                <div class="page-body section is-large">
+                </div>
+            </div>
+        </div>
     </div>
     <script>
       require('./logic.js')
