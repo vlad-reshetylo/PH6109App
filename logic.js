@@ -144,9 +144,9 @@ const app = new Vue({
 
             this.active = this.sidebarDisabled = true
 
-            const frequency = 1000 * parseInt(this[this.activePage].frequency) * parseInt(this[this.activePage].interval);
+            const frequency = 1000 * parseInt(this[this.activePage].frequency) * parseInt(this[this.activePage].interval)
 
-            this.intervalId = setInterval(this.send.bind(this), frequency);
+            this.intervalId = setInterval(this.send.bind(this), frequency)
         },
 
         stopFrequency : function () {
