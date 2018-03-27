@@ -138,7 +138,7 @@
                     <div class="columns">
                       <div class="column" v-if="!active">
                         <div class="button" v-on:click="runFrequency">Пуск</div>
-                        <div class="button" v-show="ph.data.length > 0" v-on:click="createExcelFile">Згенерувати файл</div>
+                        <div class="button" v-show="ph.data.length > 0" v-on:click="createExcelFile">Зберегти файл</div>
                       </div>
                       <div class="column" v-if="active">
                         <div class="button is-danger" v-on:click="stopFrequency">Стоп</div>
@@ -205,7 +205,7 @@
                     <div class="columns">
                       <div class="column" v-if="!active">
                         <div class="button" v-on:click="runFrequency">Пуск</div>
-                        <div class="button" v-show="orp.data.length > 0" v-on:click="createExcelFile">Згенерувати файл</div>
+                        <div class="button" v-show="orp.data.length > 0" v-on:click="createExcelFile">Зберегти файл</div>
                       </div>
                       <div class="column" v-if="active">
                         <div class="button is-danger" v-on:click="stopFrequency">Стоп</div>

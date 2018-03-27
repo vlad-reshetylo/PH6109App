@@ -6,12 +6,10 @@ const os           = require('os')
 const swal         = require('sweetalert')
 const Config       = require('electron-config')
 const excel        = require('node-excel-export')
-
+const {dialog}     = require('electron').remote
 
 const files = {
-    log     : path.join(os.homedir(), 'db.json'),
-    ph      : path.join(os.homedir(), 'ph.xlsx'),
-    orp     : path.join(os.homedir(), 'orp.xlsx')
+    log     : path.join(os.homedir(), 'db.json')
 }
 
 const Reader       = {read : null}
@@ -170,13 +168,25 @@ const app = new Vue({
                     this.temp.lastValue    = this.temp.currentValue
                     this.temp.currentValue = (parseFloat(info.substr(5)) + parseFloat(this.temp.fault)).toFixed(2)
 
-                    this.ph.data.push({date: new Date(), ph: this.ph.currentValue, temp: this.temp.currentValue})
+                    if (this.active) {
+                        this.ph.data.push({
+                            date: new Date(), 
+                            ph: this.ph.currentValue, 
+                            temp: this.temp.currentValue
+                        })
+                    }
                 }
 
                 if (this.activePage === 'orp') {
                     this.orp.lastValue    = this.orp.currentValue
                     this.orp.currentValue = (parseFloat(info.substr(0, 3) + '.' + info.substr(3, 1)) + parseFloat(this.orp.fault)).toFixed(2)
-                    this.orp.data.push({date: new Date(), orp: this.orp.currentValue})
+                        
+                    if (this.active) {
+                        this.orp.data.push({
+                            date: new Date(), 
+                            orp: this.orp.currentValue
+                        })
+                    }
                 }
             }
 
@@ -199,16 +209,19 @@ const app = new Vue({
         },
 
         createExcelFile : function () {
-            const report = excel.buildExport(
-              [
+            const report = excel.buildExport([
                 {
                   name: 'Report',
                   specification: this[this.activePage].specification,
                   data: this[this.activePage].data
                 }
-              ]
-            )
-            fs.writeFile((files[this.activePage]), report, () => {})
+            ])
+
+            dialog.showSaveDialog({
+                properties: ['openDirectory'],
+                title : "Виберіть ім`я файлу",
+                defaultPath : `${this.activePage}.xlsx`
+            }, path  => fs.writeFile(path, report, () => {}))
         }
     }
 })
