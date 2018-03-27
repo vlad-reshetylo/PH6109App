@@ -120,11 +120,11 @@
                   <div class="column" v-show="ph.mode == 'periodically'">
                     <div class="columns">
                       <div class="column">
-                        <input type="number" v-model="ph.frequency" class="input is-success" min="1" placeholder="Частота">
+                        <input type="number" v-model="ph.frequency" class="input is-success" min="1" placeholder="Частота" :disabled="active">
                       </div>
                       <div class="column">
                         <div class="select">
-                          <select v-model="ph.interval">
+                          <select v-model="ph.interval" :disabled="active">
                             <option value="1">Секунд</option>
                             <option value="60">Хвилин</option>
                             <option value="3600">Годин</option>

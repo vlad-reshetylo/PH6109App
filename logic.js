@@ -119,7 +119,7 @@ const app = new Vue({
             modbusConnection.setLengthErrorHandler(() => {
                 this.stopFrequency()
 
-                swal('Помилка!', 'ймовірніше за все, датчик знаходиться в неправильному режимі', 'error')
+                swal('Помилка!', 'Ймовірніше за все, датчик знаходиться в неправильному режимі', 'error')
             })
         },
 
