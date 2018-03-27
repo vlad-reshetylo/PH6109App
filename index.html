@@ -187,11 +187,11 @@
                   <div class="column" v-show="orp.mode == 'periodically'">
                     <div class="columns">
                       <div class="column">
-                        <input type="number" v-model="orp.frequency" class="input is-success" min="1" placeholder="Частота">
+                        <input type="number" v-model="orp.frequency" class="input is-success" min="1" placeholder="Частота" :disabled="active">
                       </div>
                       <div class="column">
                         <div class="select">
-                          <select v-model="orp.interval">
+                          <select v-model="orp.interval" :disabled="active">
                             <option value="1">Секунд</option>
                             <option value="60">Хвилин</option>
                             <option value="3600">Годин</option>
