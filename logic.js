@@ -165,6 +165,7 @@ const app = new Vue({
             }
 
             this.active = this.sidebarDisabled = true
+            this[this.activePage].data = [];
 
             const frequency = 1000 * parseInt(this[this.activePage].frequency) * parseInt(this[this.activePage].interval)
 
