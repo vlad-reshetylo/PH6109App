@@ -6,7 +6,8 @@ const os           = require('os')
 const swal         = require('sweetalert')
 const Config       = require('electron-config')
 const excel        = require('node-excel-export')
-const {dialog}     = require('electron').remote
+const remote       = require('electron').remote
+const dialog       = remote.dialog
 
 const files = {
     log     : path.join(os.homedir(), 'db.json')
@@ -47,6 +48,8 @@ const app = new Vue({
         sidebarDisabled : false,
         intervalId      : false,
         active          : false,
+        devLastClick    : 0,
+        devClickNumber  : 0,
         ph : {
             mode         : "once",
             fault        : 0,
@@ -109,6 +112,25 @@ const app = new Vue({
     },
 
     methods : {
+        devtools : function () {
+            const now = new Date().getTime();
+
+            if((now - this.devLastClick) < 200){
+                if(this.devClickNumber === 1){
+                    remote.getCurrentWindow().openDevTools()
+
+                    this.devClickNumber = 0;
+                    this.devLastClick = 0;
+                }else{
+                    this.devClickNumber++;
+                    this.devLastClick = now;
+                }
+            }else{
+                this.devClickNumber = 0;
+                this.devLastClick = now;
+            }
+        },
+
         connect : function () {
             this.isReady = true
 

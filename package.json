@@ -1,6 +1,6 @@
 {
   "name": "ph6109-electron-communication-app",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Electron application for communication with PH 6109 Meter via Modbus RTU",
   "main": "main.js",
   "scripts": {

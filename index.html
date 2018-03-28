@@ -229,9 +229,25 @@
             </div>
             <div class="page" v-show="activePage == 'info'">
               <div class="page-title titled-red">
-                Інформація
+                <span v-on:click="devtools" style="user-select: none; cursor: pointer;">Інформація</span>
               </div>
               <div class="page-body section is-large">
+                <h2>Що це?</h2>
+                Програмне забезпечення для взаємодії с пристроєм PH6109 Meter через послідовний порт.
+                <br>
+                <br>
+                <h2>Які функції має?</h2>
+                - Одноразове та перідичне зняття показників pH, окисно-відновного потенціалу, температури 
+                <br>
+                - Генерація файлу MS Excel з показниками за період
+                <br>
+                - Врахування похибки датчика
+                <br>
+                <br>
+                <h2>Автори</h2>
+                Решетило Влад та Шевченко Сергій, КрНУ, 2018 р.
+                <br>
+                https://github.com/VladReshet/PH6109App
               </div>
             </div>
         </div>

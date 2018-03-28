@@ -12,10 +12,12 @@ const url = require('url')
 let mainWindow
 
 function createWindow () {
+  let devMode = false
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1000, 
-    height: 610,
+    height: devMode ? 610 : 589,
     resizable: false,
     fullscreen: false,
     frame: true,
@@ -25,7 +27,7 @@ function createWindow () {
 
   mainWindow.setResizable(false);
   mainWindow.setFullScreenable(false);
-  // mainWindow.setMenu(null);
+  !devMode && mainWindow.setMenu(null);
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
@@ -35,7 +37,7 @@ function createWindow () {
   }))
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  devMode && mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
